@@ -2,14 +2,20 @@ import { ZodError } from "zod";
 import { NextFunction, Request, Response } from "express";
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  
   if (err instanceof ZodError) {
     // Error de validación de Zod
-    return res.status(400).json({
+    res.status(400).json({
       status: 400,
       message: "Error de validación",
       response: "Datos no válidos",
       errors: err.errors,
     });
+    next(err);
   }
 
   const statusServer = res.statusCode || 500;
@@ -38,11 +44,17 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   });
 };
 
-export const errorHandlerServer = (error: unknown, res: Response) => {
+export const errorHandlerServer = (error: unknown, res: Response, next: NextFunction) => {
+  if (res.headersSent) {
+    return next(error);
+  }
+
   if(error instanceof Error) {
-    res.status(400).json({ error: error.message});
+    res.status(400).json({ error: "Ruta no encontrada"}); 
+    next(error);
   }else{
     res.status(400).json({ error: "Unknown error"});
+    next(error);
   }
 
 }

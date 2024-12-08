@@ -199,7 +199,6 @@ export const putDataOrganization = async (id: number, data: any) => {
     
     return updatedOrganization;
   } catch (error: any) {
-    console.error("Error al actualizar la organización", error);
     throw new Error("No se pudo actualizar la organización");
   }
 };

@@ -2,16 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import * as service from "../services/organization";
 import { IdSchema, OrganizationSchema } from "../types/organizationTypes";
-import { z } from "zod";
 import { errorHandlerServer } from "../middleware/errorHandler";
 
 const prisma = new PrismaClient();
 
 
-// Middleware para manejar URLs malformadas o no encontradas
-export const notFoundHandler = (req: Request, res: Response) => {
-  return res.status(404).json({ message: "URL incorrecta" });
-};
 
 // Crear nueva organización
 export const createOrganization = async (
@@ -31,7 +26,8 @@ export const createOrganization = async (
       response: newOrganization,
     });
   } catch (error) {
-    errorHandlerServer(error, res);
+    errorHandlerServer(error, res, next);
+    next(error);
   }
 };
 
@@ -49,7 +45,8 @@ export const getAllOrganizations = async (
       response: organizations,
     });
   } catch (error) {
-    errorHandlerServer(error, res);
+    errorHandlerServer(error, res, next);
+    next(error);
   }
 };
 
@@ -88,7 +85,8 @@ export const getOrganizationById = async (
     res.json(organization);
 
   } catch (error) {
-    errorHandlerServer(error, res);
+    errorHandlerServer(error, res, next);
+    next(error);
   }
 };
 
@@ -113,7 +111,8 @@ export const updatePatchOrganization = async (
     });
 
   } catch (error) {
-    errorHandlerServer(error, res);
+    errorHandlerServer(error, res, next);
+    next(error);
   }
 };
 
@@ -137,7 +136,8 @@ export const updatePutOrganization = async (
       response: onUpdateOrganization,
     });
   } catch (error) {
-    errorHandlerServer(error, res);
+    errorHandlerServer(error, res, next);
+    next(error);
   }
 };
 
@@ -157,7 +157,8 @@ export const deleteOrganization = async (
       response: onDeleteOrganization,
     });
   } catch (error) {
-    errorHandlerServer(error, res);
+    errorHandlerServer(error, res, next);
+    next(error);
   }
 };
 
