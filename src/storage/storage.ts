@@ -7,7 +7,88 @@ const upload = multer({ dest: "uploads/" });
 
 app.use(supabaseMiddleWare);
 
-app.post("/uploadBeneficiaries", upload.single("beneficiariesFile"), async (req: Request, res: Response) => {
+app.get("/getBeneficiaries/:filename", async (req: Request, res: Response) => {
+  try {
+    const { filename } = req.params;
+    const supabase = getSupabase(req);
+    const { data, error } = await supabase.storage
+      .from(process.env.BUCKET_NAME ?? "")
+      .download(`beneficiaries/${filename}`);
+
+    if (error) {
+      console.error("Error al obtener el archivo:", error);
+      throw error;
+    }
+
+    const fileBuffer = await data.arrayBuffer();
+    const buffer = Buffer.from(fileBuffer);
+
+    // Determinar el tipo de archivo basado en la extensión
+    const fileExtension = filename.split(".").pop()?.toLowerCase();
+
+    if (fileExtension === "pdf") {
+      // Configurar los encabezados para enviar el archivo como PDF
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+    } else if (fileExtension === "png") {
+      // Configurar los encabezados para enviar el archivo como PNG
+      res.setHeader("Content-Type", "image/png");
+      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+    } else {
+      // Si el tipo de archivo no es soportado, enviar un error
+      res.status(400).send("Tipo de archivo no soportado.");
+      return;
+    }
+    res.status(200).send(buffer);
+  } catch (error) {
+    console.error("Error al obtener el archivo:", error);
+    res.status(500).send("Error al obtener el archivo.");
+  }
+});
+
+app.get("/getCertifications/:filename", async (req: Request, res: Response) => {
+  try {
+    const { filename } = req.params;
+    const supabase = getSupabase(req);
+    const { data, error } = await supabase.storage
+      .from(process.env.BUCKET_NAME ?? "")
+      .download(`certifications/${filename}`);
+
+    if (error) {
+      console.error("Error al obtener el archivo:", error);
+      throw error;
+    }
+
+    const fileBuffer = await data.arrayBuffer();
+    const buffer = Buffer.from(fileBuffer);
+
+    // Determinar el tipo de archivo basado en la extensión
+    const fileExtension = filename.split(".").pop()?.toLowerCase();
+
+    if (fileExtension === "pdf") {
+      // Configurar los encabezados para enviar el archivo como PDF
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+    } else if (fileExtension === "png") {
+      // Configurar los encabezados para enviar el archivo como PNG
+      res.setHeader("Content-Type", "image/png");
+      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
+    } else {
+      // Si el tipo de archivo no es soportado, enviar un error
+      res.status(400).send("Tipo de archivo no soportado.");
+      return;
+    }
+    res.status(200).send(buffer);
+  } catch (error) {
+    console.error("Error al obtener el archivo:", error);
+    res.status(500).send("Error al obtener el archivo.");
+  }
+});
+
+app.post(
+  "/uploadBeneficiaries",
+  upload.single("beneficiariesFile"),
+  async (req: Request, res: Response) => {
     try {
       if (!req.file) {
         return res.status(400).send("No file uploaded.");
@@ -21,9 +102,9 @@ app.post("/uploadBeneficiaries", upload.single("beneficiariesFile"), async (req:
       const fileBuffer = fs.readFileSync(path);
 
       // Sube el archivo a Supabase Storage
-     
+
       const { data, error } = await supabase.storage
-        .from("organizations")
+        .from(process.env.BUCKET_NAME ?? "")
         .upload(`beneficiaries/${originalname}`, fileBuffer);
 
       if (error) {
@@ -37,7 +118,10 @@ app.post("/uploadBeneficiaries", upload.single("beneficiariesFile"), async (req:
   }
 );
 
-app.post("/uploadCertifications", upload.single("certificationFile"), async (req: Request, res: Response) => {
+app.post(
+  "/uploadCertifications",
+  upload.single("certificationFile"),
+  async (req: Request, res: Response) => {
     try {
       if (!req.file) {
         return res.status(400).send("No file uploaded.");
@@ -52,7 +136,7 @@ app.post("/uploadCertifications", upload.single("certificationFile"), async (req
 
       // Sube el archivo a Supabase Storage
       const { data, error } = await supabase.storage
-        .from("organizations")
+        .from(process.env.BUCKET_NAME ?? "")
         .upload(`certifications/${originalname}`, fileBuffer);
 
       if (error) {
