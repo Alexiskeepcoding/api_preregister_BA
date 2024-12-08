@@ -64,7 +64,90 @@ router.get("/organizationinfo", OtherRouter.getOrganizationInfo);
 router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
 
 /**
- * Uploads a file to the "organizations" storage bucket in Supabase.
+ * @swagger
+ * /api/organization/getCertifications/{filename}:
+ *   get:
+ *     summary: Obtiene un archivo de certificación
+ *     description: Descarga un archivo de certificación desde el almacenamiento basado en el nombre de archivo proporcionado.
+ *     parameters:
+ *       - in: path
+ *         name: filename
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: El nombre del archivo a descargar.
+ *     responses:
+ *       200:
+ *         description: Archivo descargado exitosamente.
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *           image/png:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       400:
+ *         description: Tipo de archivo no soportado.
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: Tipo de archivo no soportado.
+ *       500:
+ *         description: Error al obtener el archivo.
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: Error al obtener el archivo.
+ */
+
+
+/**
+ * @swagger
+ * /getBeneficiaries/{filename}:
+ *   get:
+ *     summary: Obtiene un archivo de beneficiarios desde el almacenamiento.
+ *     description: Descarga un archivo de beneficiarios desde el almacenamiento basado en el nombre del archivo proporcionado.
+ *     parameters:
+ *       - in: path
+ *         name: filename
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: El nombre del archivo a descargar.
+ *     responses:
+ *       '200':
+ *         description: Archivo descargado exitosamente.
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *           image/png:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       '400':
+ *         description: Tipo de archivo no soportado.
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: Tipo de archivo no soportado.
+ *       '500':
+ *         description: Error al obtener el archivo.
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: Error al obtener el archivo.
+ */
+
+
+/**
  *
  * @swagger
  * /api/organization/uploadBeneficiaries:
@@ -104,7 +187,6 @@ router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
 
 
 /**
- * Uploads a file to the "organizations" storage bucket in Supabase.
  *
  * @swagger
  * /api/organization/uploadCertifications:
