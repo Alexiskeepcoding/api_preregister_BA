@@ -1,27 +1,20 @@
-# Etapa 1: Construcción
-FROM node:18
+# Usa una imagen base de Node.js
+FROM node:20.17.0
 
-# Establecer el directorio de trabajo
+# Establece el directorio de trabajo en /app
 WORKDIR /app
 
-# Copiar archivos del proyecto
-COPY package*.json tsconfig.json ./
-COPY src ./src
-
-# Instalar dependencias y construir
-RUN npm install && npm run build
-
-# Etapa 2: Producción
-FROM node:18
-
-WORKDIR /app
-
-# Copiar dependencias de producción y el código transpilado
+# Copia el package.json y el package-lock.json
 COPY package*.json ./
-COPY --from=builder /app/dist ./dist
-RUN npm install --only=production
 
+# Instala las dependencias
+RUN npm install
+
+# Copia el resto de la aplicación
+COPY . .
+
+# Expone el puerto en el que la aplicación se ejecutará
 EXPOSE 3000
 
-# Comando de inicio
+# Comando para ejecutar la aplicación
 CMD ["npm", "start"]
