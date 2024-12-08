@@ -1,10 +1,36 @@
-import express from "express";
-import * as Organization from "../controller/organizationController";
-import * as OtherRouter from "../controller/otherRoutes";
-import storage from "../storage/storage";
-
-const router = express.Router();
-
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const Organization = __importStar(require("../controller/organizationController"));
+const OtherRouter = __importStar(require("../controller/otherRoutes"));
+const storage_1 = __importDefault(require("../storage/storage"));
+const router = express_1.default.Router();
 /**
  * @swagger
  * /api/organization/all:
@@ -22,7 +48,6 @@ const router = express.Router();
  *                 $ref: '#/components/schemas/Organization'
  */
 router.get("/all", Organization.getAllOrganizations);
-
 //From Tickets
 /**
  * @swagger
@@ -60,9 +85,7 @@ router.get("/organizationinfo", OtherRouter.getOrganizationInfo);
  *             schema:
  *               $ref: '#/components/schemas/OrganizationInfo'
  */
-
 router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
-
 /**
  * @swagger
  * /api/organization/getCertifications/{filename}:
@@ -104,8 +127,6 @@ router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
  *               type: string
  *               example: Error al obtener el archivo.
  */
-
-
 /**
  * @swagger
  * /api/organization/getBeneficiaries/{filename}:
@@ -147,8 +168,6 @@ router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
  *               type: string
  *               example: Error al obtener el archivo.
  */
-
-
 /**
  *
  * @swagger
@@ -187,8 +206,6 @@ router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
  *       500:
  *         description: Error al subir el archivo.
  */
-
-
 /**
  *
  * @swagger
@@ -206,7 +223,7 @@ router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
  *               file:
  *                 type: certificationFile
  *                 format: fileExample.pdf
- *                 description: Archivo a subir key(value)              
+ *                 description: Archivo a subir key(value)
  *     responses:
  *       200:
  *         description: Archivo subido exitosamente
@@ -226,10 +243,7 @@ router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
  *       500:
  *         description: Error al subir el archivo.
  */
-
-
-router.use(storage);
-
+router.use(storage_1.default);
 /**
  * @swagger
  * /api/organization/{id}:
@@ -275,7 +289,6 @@ router.use(storage);
  *                   type: string
  */
 router.get("/:id", Organization.getOrganizationById);
-
 /**
  * @swagger
  * /api/organization/create:
@@ -296,9 +309,7 @@ router.get("/:id", Organization.getOrganizationById);
  *             schema:
  *               $ref: '#/components/schemas/Organization'
  */
-
 router.post("/create", Organization.createOrganization);
-
 /**
  * @swagger
  * /api/organization/{id}:
@@ -326,9 +337,7 @@ router.post("/create", Organization.createOrganization);
  *             schema:
  *               $ref: '#/components/schemas/Organization'
  */
-
 router.put("/:id", Organization.updatePutOrganization);
-
 /**
  * @swagger
  * /api/organization/update/{id}:
@@ -362,9 +371,7 @@ router.put("/:id", Organization.updatePutOrganization);
  *                response:
  *                  type: object
  */
-
 router.patch("/update/:id", Organization.updatePatchOrganization);
-
 /**
  * @swagger
  * /api/organization/delete/{id}:
@@ -383,7 +390,6 @@ router.patch("/update/:id", Organization.updatePatchOrganization);
  *         description: La organización con el id sido eliminada correctamente
  */
 router.delete("/delete/:id", Organization.deleteOrganization);
-
 /**
  * @swagger
  * components:
@@ -410,5 +416,4 @@ router.delete("/delete/:id", Organization.deleteOrganization);
  *         numPreRegister:
  *           type: number
  */
-
-export default router;
+exports.default = router;
