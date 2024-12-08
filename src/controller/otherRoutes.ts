@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import * as otherService from '../../services/otherServices';
+import * as otherService from '../services/otherServices';
 
 //TODO: Hacer los metodos para la visualizacion de errores
 export const getOrganizationInfo = async (req:Request, res:Response, next:NextFunction) => {

@@ -27,7 +27,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
       break;
     default:
       message = err.message || "Error interno del servidor";
-      response = `Error inesperado`;
+      response = `Error de Servidor`;
       break;
   }
 
@@ -37,3 +37,12 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
     response: response,
   });
 };
+
+export const errorHandlerServer = (error: unknown, res: Response) => {
+  if(error instanceof Error) {
+    res.status(400).json({ error: error.message});
+  }else{
+    res.status(400).json({ error: "Unknown error"});
+  }
+
+}

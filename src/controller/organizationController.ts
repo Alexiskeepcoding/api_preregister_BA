@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import * as service from "../../services/services";
-import { IdSchema, OrganizationSchema } from "../../types/globalTypes";
+import * as service from "../services/organization";
+import { IdSchema, OrganizationSchema } from "../types/organizationTypes";
 import { z } from "zod";
+import { errorHandlerServer } from "../middleware/errorHandler";
 
 const prisma = new PrismaClient();
 
@@ -23,22 +24,14 @@ export const createOrganization = async (
     const parsedData = OrganizationSchema.parse(req.body);
 
     const newOrganization = await service.createOrganization(parsedData);
-    
-    if(!newOrganization) {
-      return res.status(400).json({ message: "Los datos no pudieron ser procesados correctamente" });
-    }
+
     res.status(201).json({
       status: 201,
       message: "Organización creada correctamente",
       response: newOrganization,
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Error de validación", errors: error.errors });
-    }
-    console.error(error);
-    res.status(500).json({ message: "Error al crear la organización" });
-    next(error);
+    errorHandlerServer(error, res);
   }
 };
 
@@ -56,9 +49,7 @@ export const getAllOrganizations = async (
       response: organizations,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error al obtener las Organizaciones" });
-    next(error);
+    errorHandlerServer(error, res);
   }
 };
 
@@ -95,16 +86,9 @@ export const getOrganizationById = async (
     }
 
     res.json(organization);
+
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        message: "Error de validación de parámetros",
-        errors: error.errors,
-      });
-    }
-    console.error(error);
-    res.status(500).json({ message: "Error al obtener la organización" });
-    next(error);
+    errorHandlerServer(error, res);
   }
 };
 
@@ -129,11 +113,7 @@ export const updatePatchOrganization = async (
     });
 
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Error de validación", errors: error.errors });
-    }
-    console.error("Error updating organization:", error);
-    next(new Error("Invalid data structure or database error"));
+    errorHandlerServer(error, res);
   }
 };
 
@@ -157,11 +137,7 @@ export const updatePutOrganization = async (
       response: onUpdateOrganization,
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Error de validación", errors: error.errors });
-    }
-    console.error(error);
-    next(new Error("Invalid data structure or database error"));
+    errorHandlerServer(error, res);
   }
 };
 
@@ -181,18 +157,7 @@ export const deleteOrganization = async (
       response: onDeleteOrganization,
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({
-        status: 400,
-        message: "Error de validación de parámetros",
-        response: "Datos no válidos",
-      });
-    }
-    res.status(500).json({ 
-      status: 500,
-      message: "Invalid data structure or database error",
-      response: "Error inesperado",
-    });
+    errorHandlerServer(error, res);
   }
 };
 

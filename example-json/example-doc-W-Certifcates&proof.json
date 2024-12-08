@@ -1,0 +1,94 @@
+{
+    "stateRegistration": "PENDING",
+    "nameOrganization": {
+        "text": "Fundación Esperanza",
+        "state": true
+    },
+    "ruc": {
+        "rucText": "171471631817",
+        "documentProof": "niceTocreateSomething" 
+    },
+    "phone": {
+        "text": "098002575",
+        "state": true
+    },
+    "email": {
+        "text": "fune-espe@organizacion.com",
+        "state": true
+    },
+    "purpose": {
+        "text": "Negocio",
+        "state": true
+    },
+    "beneficiaryDocument": [
+        {
+            "documentProof": "Hola que hace"
+        }
+    ],
+    "motive": {
+        "text": "Expansión",
+        "state": true
+    },
+    "numPreRegister": {
+        "text": 2,
+        "state": true
+    },
+    "certificates": {
+        "iessCertificate": {
+            "imageurl": "http://example.com/nice.jpg",
+            "state": true
+        },
+        "sriCertificate": {
+            "imageurl": "http://example.com/catalog.jpg",
+            "state": true
+        }
+    },
+    "address": {
+        "street": {
+            "text": "Avenida 6 Diciembre",
+            "state": true
+        },
+        "city": {
+            "text": "Uio",
+            "state": true
+        },
+        "neighborhood": {
+            "text": "El Inca",
+            "state": true
+        },
+        "province": {
+            "text": "Pichincha",
+            "state": true
+        },
+        "country": {
+            "text": "Ecuador",
+            "state": true
+        }
+    },
+    "coordinates": {
+        "latitude": "-10.123",
+        "longitude": "-72.001"
+    },
+    "representative": {
+        "name": {
+            "text": "Oscar Calles",
+            "state": true
+        },
+        "numDoc": {
+            "text": "170060017",
+            "state": true
+        },
+        "role": {
+            "text": "Director",
+            "state": true
+        },
+        "emailRepresentative": {
+            "text": "oscar.calles@ejemplo.com",
+            "state": true
+        },
+        "phoneRepresentative": {
+            "text": "0971223369",
+            "state": true
+        }
+    }
+}

@@ -10,97 +10,83 @@ datasource db {
 
 model Organization {
   id                Int               @id @default(autoincrement())
-  stateRegistration stateRegistration @default(PENDING)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  nameOrganization  NameOrganization  @relation(fields: [nameOrganizationId], references: [id], onDelete: Cascade)
+  ruc               Ruc               @relation(fields: [rucId], references: [id], onDelete: Cascade)
+  phone             Phone             @relation(fields: [phoneId], references: [id], onDelete: Cascade)
+  email             Email             @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  purpose           Purpose           @relation(fields: [purposeId], references: [id], onDelete: Cascade)
+  dependentsBenefit DependentsBenefit @relation(fields: [dependentBenefitId], references: [id], onDelete: Cascade)
+  motive            Motive            @relation(fields: [motiveId], references: [id], onDelete: Cascade)
+  numPreRegister    NumPreRegister    @relation(fields: [numRegisterId], references: [id], onDelete: Cascade)
+  address           Address           @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  coordinates       Coordinates       @relation(fields: [coordinatesId], references: [id], onDelete: Cascade)
+  representative    Representative    @relation(fields: [representativeId], references: [id], onDelete: Cascade)
+  stateRegistration StateRegistration
 
-  nameOrganization NameOrganization?
-  ruc              Ruc?
-  phone            Phone?
-  email            Email?
-  purpose          Purpose?
-  motive           Motive?
-  coordinates      Coordinates?
-
-  representative      Representative?
-  beneficiaryDocument BeneficiaryDocumentProof?
-  numPreRegister      NumPreRegister?
-  address             Address?
-  certificates        Certificate?
+  nameOrganizationId Int @unique
+  rucId              Int @unique
+  emailId            Int @unique
+  phoneId            Int @unique
+  motiveId           Int @unique
+  purposeId          Int @unique
+  dependentBenefitId Int @unique
+  numRegisterId      Int @unique
+  addressId          Int @unique
+  coordinatesId      Int @unique
+  representativeId   Int @unique
 }
 
+//certificates        Certificate?
+//DependBenefit - Document
+
 model NameOrganization {
-  id    Int     @id @default(autoincrement())
-  text  String
-  state Boolean
-
-  organization       Organization @relation(fields: [nameOrganizationId], references: [id], onDelete: Cascade)
-  nameOrganizationId Int          @unique
-
-  @@unique([id, nameOrganizationId])
+  id           Int           @id @default(autoincrement())
+  text         String
+  state        Boolean
+  organization Organization?
 }
 
 model Ruc {
-  id            Int    @id @default(autoincrement())
-  rucText       String
-  documentProof  Bytes //This is BLOB
+  id      Int     @id @default(autoincrement())
+  rucText String
+  state   Boolean
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
+  organizaion Organization?
 }
 
 model Phone {
-  id    Int     @id @default(autoincrement())
-  text  String
-  state Boolean
-
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
+  id           Int           @id @default(autoincrement())
+  text         String
+  state        Boolean
+  organization Organization?
 }
 
 model Email {
-  id             Int          @id @default(autoincrement())
-  text           String
-  state          Boolean
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
+  id           Int           @id @default(autoincrement())
+  text         String
+  state        Boolean
+  organization Organization?
 }
 
 model Purpose {
-  id             Int          @id @default(autoincrement())
-  text           String
-  state          Boolean
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
+  id           Int           @id @default(autoincrement())
+  text         String
+  state        Boolean
+  organization Organization?
 }
 
-model BeneficiaryDocumentProof {
-  id            Int    @id @default(autoincrement())
-  documentProof  Bytes //This is BLOB based
-
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
+model DependentsBenefit {
+  id           Int           @id @default(autoincrement())
+  text         Int
+  state        Boolean
+  organization Organization?
 }
 
 model Motive {
-  id    Int     @id @default(autoincrement())
-  text  String
-  state Boolean
-
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
+  id           Int           @id @default(autoincrement())
+  text         String
+  state        Boolean
+  organization Organization?
 }
 
 model NumPreRegister {
@@ -108,46 +94,7 @@ model NumPreRegister {
   text  Int
   state Boolean
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
-}
-
-model Certificate {
-  id Int @id @default(autoincrement())
-
-  iessCertificate IESSCertification?
-  sriCertificate  SRICertification?
-
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
-}
-
-model IESSCertification {
-  id        Int      @id @default(autoincrement())
-  imageurl  String
-  state     Boolean
-  updatedat DateTime @updatedAt
-
-  certificates        Certificate @relation(fields: [iessCertificationId], references: [id], onDelete: Cascade)
-  iessCertificationId Int         @unique
-
-  @@unique([id, iessCertificationId])
-}
-
-model SRICertification {
-  id        Int      @id @default(autoincrement())
-  imageurl  String
-  state     Boolean
-  updatedat DateTime @updatedAt
-
-  certificates  Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
-  certificateId Int         @unique
-
-  @@unique([id, certificateId])
+  organization Organization?
 }
 
 model Address {
@@ -157,11 +104,7 @@ model Address {
   neighborhood Neighborhood?
   province     Province?
   street       Street?
-
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
+  organization Organization?
 }
 
 model Street {
@@ -224,10 +167,7 @@ model Coordinates {
   latitude  String
   longitude String
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
+  organization Organization?
 }
 
 model Representative {
@@ -237,11 +177,7 @@ model Representative {
   numDoc              NumDoc?
   phoneRepresentative PhoneRepresentative?
   role                Role?
-
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId Int          @unique
-
-  @@unique([id, organizationId])
+  organization        Organization?
 }
 
 model Name {
@@ -299,7 +235,7 @@ model PhoneRepresentative {
   @@unique([id, organizationId])
 }
 
-enum stateRegistration {
+enum StateRegistration {
   PENDING
   REVIEW
   APPROVED

@@ -7,7 +7,7 @@ export const OrganizationSchema = z.object({
     }),
     ruc: z.object({
         rucText: z.string().min(10, "El RUC debe tener 13 dígitos"),
-        documentProof: z.string().optional(),
+        state: z.boolean(),
     }),
     phone: z.object({
         text: z.string().optional(),
@@ -21,7 +21,10 @@ export const OrganizationSchema = z.object({
         text: z.string().optional(),
         state: z.boolean(),
     }),
-
+    dependentsBenefit: z.object({
+        text: z.number().optional(),
+        state: z.boolean(),
+    }),
     motive: z.object({
         text: z.string().optional(),
         state: z.boolean(),
@@ -30,20 +33,6 @@ export const OrganizationSchema = z.object({
         text: z.number().optional(),
         state: z.boolean(),
     }),
-    beneficiaryDocument: z.object({
-        documentProof: z.string().regex(/^[A-Za-z0-9+/]+={0,2}$/, 'Invalid Base64 string').optional()
-    }).optional()
-    ,
-    certificates: z.object({
-        iessCertificate: z.object({
-            imageurl: z.string(),
-            state: z.boolean(),
-        }).optional(),
-        sriCertificate: z.object({
-            imageurl: z.string(),
-            state: z.boolean(),
-        }).optional(),
-    }).optional(),
     address: z.object({
         street: z.object({
             text: z.string().optional(),
@@ -92,7 +81,7 @@ export const OrganizationSchema = z.object({
             state: z.boolean(),
         }),
     }).optional(),
-    stateRegistration: z.string().optional(),
+    stateRegistration: z.enum(["PENDING", "REVIEW", "APPROVED", "REJECTED"]),
 });
 
 

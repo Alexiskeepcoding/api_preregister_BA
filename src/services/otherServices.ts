@@ -23,20 +23,6 @@ export const fetchInfoOrganization = async () => {
               },
             }
           },
-          certificates: {
-            select: {
-              iessCertificate: {
-                select: {
-                  state: true
-                }
-              },
-              sriCertificate: {
-                select: {
-                  state: true
-                }
-              }
-            }
-          }
         }
       });
     } catch (error: any) {
@@ -70,20 +56,6 @@ export function fetchInfoOrganizationById(id: number) {
             },
           }
         },
-        certificates: {
-          select: {
-            iessCertificate: {
-              select: {
-                state: true
-              }
-            },
-            sriCertificate: {
-              select: {
-                state: true
-              }
-            }
-          }
-        }
       }
     })
   } catch (error: any) {
