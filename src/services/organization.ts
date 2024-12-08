@@ -5,126 +5,14 @@ import { deletedAndResignIds } from "./updateOrderDatabase";
 
 export const fetchAllOrganizations = async () => {
   try {
-    return await prisma.organization.findMany({
-      select: {
-        nameOrganization: {
-          select: {
-            text: true,
-            state: true,
-          },
-        },
-        ruc: {
-          select: {
-            rucText: true,
-            state: true
-          },
-        },
-        phone: {
-          select: {
-            text: true,
-            state: true,
-          },
-        },
-        email: {
-          select: {
-            text: true,
-            state: true,
-          },
-        },
-        purpose: {
-          select: {
-            text: true,
-            state: true,
-          },
-        },
-        motive: {
-          select: {
-            text: true,
-            state: true,
-          },
-        },
-        numPreRegister: {
-          select: {
-            text: true,
-            state: true,
-          },
-        },
-        address: {
-          include: {
-            street: {
-              select: {
-                text: true,
-                state: true,
-              },
-            },
-            city: {
-              select: {
-                text: true,
-                state: true,
-              },
-            },
-            neighborhood: {
-              select: {
-                text: true,
-                state: true,
-              },
-            },
-            province: {
-              select: {
-                text: true,
-                state: true,
-              },
-            },
-            country: {
-              select: {
-                text: true,
-                state: true,
-              },
-            },
-          },
-        },
-        coordinates: {
-          select: {
-            latitude: true,
-            longitude: true,
-          },
-        },
-        representative: {
-          select: {
-            name: {
-              select: {
-                text: true,
-                state: true,
-              },
-            },
-            numDoc: {
-              select: {
-                text: true,
-                state: true,
-              },
-            },
-            role: {
-              select: {
-                text: true,
-                state: true,
-              },
-            },
-            emailRepresentative: {
-              select: {
-                text: true,
-                state: true,
-              },
-            },
-            phoneRepresentative: {
-              select: {
-                text: true,
-                state: true,
-              },
-            },
-          },
-        },
+    const organizations = await prisma.organization.findMany({
+      include: {
+        address: true,
+        coordinates: true,
+        representative: true,
       },
     });
+    return organizations;
   } catch (error: any) {
     console.error("Error al obtener las organizaciones", error);
     return [];
@@ -132,133 +20,85 @@ export const fetchAllOrganizations = async () => {
 };
 
 export const createOrganization = async (data: any) => {
+  const createNestedField = (field: any) => ({
+    create: {
+      text: field.text,
+      state: field.state,
+    },
+  });
+
+  const createAddressField = (field: any) => ({
+    create: {
+      text: field.text,
+      state: field.state,
+    },
+  });
+
   try {
+    const {
+      nameOrganization,
+      ruc,
+      phone,
+      email,
+      purpose,
+      dependentsBenefit,
+      motive,
+      numPreRegister,
+      address,
+      coordinates,
+      representative,
+      stateRegistration,
+    } = data;
+
     const newOrganization = await prisma.organization.create({
       data: {
-        nameOrganization: {
-          create: {
-            text: data.nameOrganization.text,
-            state: data.nameOrganization.state,
-          },
-        },
+        nameOrganization: createNestedField(nameOrganization),
         ruc: {
           create: {
-            rucText: data.ruc.rucText,
-            state: data.ruc.state,
+            rucText: ruc.rucText,
+            state: ruc.state,
           },
         },
-        phone: {
-          create: {
-            text: data.phone.text,
-            state: data.phone.state,
-          },
-        },
-        email: {
-          create: {
-            text: data.email.text,
-            state: data.email.state,
-          },
-        },
-        purpose: {
-          create: {
-            text: data.purpose.text,
-            state: data.purpose.state,
-          },
-        },
-        dependentsBenefit: {
-          create: {
-            text: data.dependentsBenefit.text,
-            state: data.dependentsBenefit.state,
-          },
-        },
-        motive: {
-          create: {
-            text: data.motive.text,
-            state: data.motive.state,
-          },
-        },
+        phone: createNestedField(phone),
+        email: createNestedField(email),
+        purpose: createNestedField(purpose),
+        dependentsBenefit: createNestedField(dependentsBenefit),
+        motive: createNestedField(motive),
         numPreRegister: {
           create: {
-            text: parseInt(data.numPreRegister.text),
-            state: data.numPreRegister.state,
+            text: parseInt(numPreRegister.text),
+            state: numPreRegister.state,
           },
         },
         address: {
           create: {
-            street: {
-              create: {
-                text: data.address.street.text,
-                state: data.address.street.state,
-              },
-            },
-            city: {
-              create: {
-                text: data.address.city.text,
-                state: data.address.city.state,
-              },
-            },
-            neighborhood: {
-              create: {
-                text: data.address.neighborhood.text,
-                state: data.address.neighborhood.state,
-              },
-            },
-            province: {
-              create: {
-                text: data.address.province.text,
-                state: data.address.province.state,
-              },
-            },
-            country: {
-              create: {
-                text: data.address.country.text,
-                state: data.address.country.state,
-              },
-            },
+            street: createAddressField(address.street),
+            city: createAddressField(address.city),
+            neighborhood: createAddressField(address.neighborhood),
+            province: createAddressField(address.province),
+            country: createAddressField(address.country),
           },
         },
         coordinates: {
           create: {
-            latitude: data.coordinates.latitude,
-            longitude: data.coordinates.longitude,
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude,
           },
         },
         representative: {
           create: {
-            name: {
-              create: {
-                text: data.representative.name.text,
-                state: data.representative.name.state,
-              },
-            },
-            numDoc: {
-              create: {
-                text: data.representative.numDoc.text,
-                state: data.representative.numDoc.state,
-              },
-            },
-            role: {
-              create: {
-                text: data.representative.role.text,
-                state: data.representative.role.state,
-              },
-            },
-            emailRepresentative: {
-              create: {
-                text: data.representative.emailRepresentative.text,
-                state: data.representative.emailRepresentative.state,
-              },
-            },
-            phoneRepresentative: {
-              create: {
-                text: data.representative.phoneRepresentative.text,
-                state: data.representative.phoneRepresentative.state,
-              },
-            },
+            name: createNestedField(representative.name),
+            numDoc: createNestedField(representative.numDoc),
+            role: createNestedField(representative.role),
+            emailRepresentative: createNestedField(
+              representative.emailRepresentative
+            ),
+            phoneRepresentative: createNestedField(
+              representative.phoneRepresentative
+            ),
           },
         },
-
-        stateRegistration: data.stateRegistration,
+        stateRegistration,
       },
     });
     return newOrganization;
