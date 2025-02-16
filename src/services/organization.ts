@@ -4,13 +4,55 @@ import { z } from "zod";
 import { deletedAndResignIds } from "./updateOrderDatabase";
 
 export const fetchAllOrganizations = async () => {
+  const selectFields = {
+    select: {
+      text: true,
+      state: true
+    }
+  }
   try {
     const organizations = await prisma.organization.findMany({
-      include: {
-        address: true,
-        coordinates: true,
-        representative: true,
-      },
+      select: {
+        id: true,
+        nameOrganization: selectFields,
+        ruc: {
+          select: {
+            rucText: true,
+            state: true
+          }
+        },
+        phone: selectFields,
+        email: selectFields,
+        purpose: selectFields,
+        dependentsBenefit: selectFields,
+        motive: selectFields,
+        numPreRegister: selectFields,
+        address: {
+          select: {
+            street: selectFields,
+            city: selectFields,
+            neighborhood: selectFields,
+            province: selectFields,
+            country: selectFields,
+          }
+        },
+        coordinates: {
+          select: {
+            latitude: true,
+            longitude: true
+          }
+        },
+        representative: {
+          select: {
+            name: selectFields,
+            numDoc: selectFields,
+            role: selectFields,
+            emailRepresentative: selectFields,
+            phoneRepresentative: selectFields,
+          }
+        },
+        stateRegistration: true
+      }
     });
     return organizations;
   } catch (error: any) {

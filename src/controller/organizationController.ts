@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import * as service from "../services/organization";
 import { IdSchema, OrganizationSchema } from "../types/organizationTypes";
 import { errorHandlerServer } from "../middleware/errorHandler";
+import { text } from "stream/consumers";
 
 const prisma = new PrismaClient();
 
@@ -42,7 +43,7 @@ export const getAllOrganizations = async (
     res.status(200).json({
       status: 200,
       message: "Todas las Organizaciones obtenidas correctamente",
-      response: organizations,
+      dataOnlyOrganizations: organizations,
     });
   } catch (error) {
     errorHandlerServer(error, res, next);
@@ -57,25 +58,60 @@ export const getOrganizationById = async (
   next: NextFunction
 ) => {
   try {
+
     // Validación del ID con Zod
     const { id } = IdSchema.parse(req.params);
 
+    const selectFields = {
+      select: {
+        text: true,
+        state: true
+      }
+    }
+
     // Verificar si la organización existe en la base de datos
     const organization = await prisma.organization.findUnique({
-      where: { id: Number(id) },  
+      where: { id: Number(id) },
       select: {
-        stateRegistration: true,
+        nameOrganization: selectFields,
+        ruc: {
+          select: {
+            rucText: true,
+            state: true
+          }
+        },
+        phone: selectFields,
+        email: selectFields,
+        purpose: selectFields,
+        dependentsBenefit: selectFields,
+        motive: selectFields,
+        numPreRegister: selectFields,
         address: {
           select: {
-            city: true,
-          },
+            street: selectFields,
+            city: selectFields,
+            neighborhood: selectFields,
+            province: selectFields,
+            country: selectFields,
+          }
+        },
+        coordinates: {
+          select: {
+            latitude: true,
+            longitude: true
+          }
         },
         representative: {
           select: {
-            name: true,
-          },
+            name: selectFields,
+            numDoc: selectFields,
+            role: selectFields,
+            emailRepresentative: selectFields,
+            phoneRepresentative: selectFields,
+          }
         },
-      },
+        stateRegistration: true
+      }
     });
 
     if (!organization) {

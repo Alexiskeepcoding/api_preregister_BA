@@ -58,7 +58,7 @@ router.get("/organizationinfo", OtherRouter.getOrganizationInfo);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/OrganizationInfo'
+ *               $ref: '#/components/schemas/Organization'
  */
 
 router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
@@ -124,14 +124,13 @@ router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
  *       '200':
  *         description: Archivo descargado exitosamente.
  *         content:
+ *           consumes:
+ *              - application/pdf
+ *              - image/png
  *           application/pdf:
- *             schema:
- *               type: string
- *               format: binary
- *           image/png:
- *             schema:
- *               type: string
- *               format: binary
+ *            schema:
+ *             type: string
+ *             format: binary
  *       '400':
  *         description: Tipo de archivo no soportado.
  *         content:
@@ -164,9 +163,12 @@ router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
  *             type: object
  *             properties:
  *               file:
- *                 type: beneficiariesFile
- *                 format: fileExample.pdf
- *                 description: Archivo a subir key(value)
+ *                 type: string
+ *                 format: binary
+ *                 description: "El archivo pdf de los beneficiarios, key: beneficiariesFile"
+ *             key: 
+ *              type: beneficiariesFile
+ *              description: "key: beneficiariesFile para subir el archivo"
  *     responses:
  *       200:
  *         description: Archivo subido exitosamente
@@ -204,9 +206,9 @@ router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
  *             type: object
  *             properties:
  *               file:
- *                 type: certificationFile
- *                 format: fileExample.pdf
- *                 description: Archivo a subir key(value)              
+ *                 type: string
+ *                 format: binary
+ *                 description: "El archivo pdf de los cerificados, key: certificationFile"
  *     responses:
  *       200:
  *         description: Archivo subido exitosamente
@@ -249,20 +251,7 @@ router.use(storage);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 stateRegistration:
- *                   type: string
- *                 address:
- *                   type: object
- *                   properties:
- *                     city:
- *                       type: string
- *                 representative:
- *                   type: object
- *                   properties:
- *                     name:
- *                       type: string
+ *              $ref: '#/components/schemas/Organization'
  *       404:
  *         description: Organización no encontrada
  *         content:
@@ -392,23 +381,149 @@ router.delete("/delete/:id", Organization.deleteOrganization);
  *       type: object
  *       properties:
  *         id:
- *           type: string
+ *           type: number
  *         nameOrganization:
- *           type: string
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         ruc:
- *           type: string
+ *           type: object
+ *           properties:
+ *             rucText:
+ *               type: string
+ *             state:
+ *               type: string
  *         phone:
- *           type: string
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         email:
- *           type:
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         purpose:
- *           type: string
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         dependentsBenefit:
- *           type: number
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         motive:
- *           type: string
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         numPreRegister:
- *           type: number
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
+ *         address:
+ *           type: object
+ *           properties:
+ *             street:
+ *               type: object
+ *               properties:
+ *                  text:
+ *                      type: string
+ *                  state:
+ *                      type: string
+ *             city:
+ *               type: object
+ *               properties:
+ *                  text:
+ *                      type: string
+ *                  state:
+ *                      type: string
+ *             neighborhood:
+ *               type: object
+ *               properties:
+ *                  text:
+ *                      type: string
+ *                  state:
+ *                      type: string
+ *             province:
+ *               type: object
+ *               properties:
+ *                  text:
+ *                      type: string
+ *                  state:
+ *                      type: string
+ *             country:
+ *               type: object
+ *               properties:
+ *                  text:
+ *                      type: string
+ *                  state:
+ *                      type: string
+ *             coordinates:
+ *               type: object
+ *               properties:
+ *                 latitude:
+ *                      type: number
+ *                 longitude:
+ *                      type: number
+ *             representative:
+ *               type: object
+ *               properties:
+ *                  name:
+ *                     type: object
+ *                     properties:
+ *                       text:
+ *                          type: string
+ *                       state:
+ *                          type: string
+ *                  numDoc:
+ *                     type: object
+ *                     properties:
+ *                      text:
+ *                         type: string
+ *                      state:
+ *                         type: string
+ *                  role:
+ *                     type: object
+ *                     properties:
+ *                      text:
+ *                         type: string
+ *                      state:
+ *                         type: string
+ *                  emailRepresentative:
+ *                      type: object
+ *                      properties:
+ *                       text:
+ *                          type: string
+ *                       state:
+ *                          type: string
+ *                  phoneRepresentative:
+ *                      type: object
+ *                      properties:
+ *                       text:
+ *                          type: string
+ *                       state:
+ *                          type: string
+ *                  stateRegistration:
+ *                     type: string
+ * 
  */
 
 export default router;
