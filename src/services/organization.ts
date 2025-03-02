@@ -15,12 +15,7 @@ export const fetchAllOrganizations = async () => {
       select: {
         id: true,
         nameOrganization: selectFields,
-        ruc: {
-          select: {
-            rucText: true,
-            state: true
-          }
-        },
+        ruc: selectFields,
         phone: selectFields,
         email: selectFields,
         purpose: selectFields,
@@ -54,6 +49,8 @@ export const fetchAllOrganizations = async () => {
         stateRegistration: true
       }
     });
+
+    
     return organizations;
   } catch (error: any) {
     console.error("Error al obtener las organizaciones", error);
@@ -97,12 +94,7 @@ export const createOrganization = async (data: any) => {
     const newOrganization = await prisma.organization.create({
       data: {
         nameOrganization: createNestedField(nameOrganization),
-        ruc: {
-          create: {
-            rucText: ruc.rucText,
-            state: ruc.state,
-          },
-        },
+        ruc: createAddressField(ruc),
         phone: createNestedField(phone),
         email: createNestedField(email),
         purpose: createNestedField(purpose),
@@ -190,12 +182,7 @@ export const putDataOrganization = async (id: number, data: any) => {
       },
       data: {
         nameOrganization: updateNestedField(nameOrganization),
-        ruc: {
-          update: {
-            rucText: ruc.rucText,
-            state: ruc.state,
-          },
-        },
+        ruc: updateNestedField(ruc),
         phone: updateNestedField(phone),
         email: updateNestedField(email),
         purpose: updateNestedField(purpose),
@@ -247,6 +234,14 @@ export const putDataOrganization = async (id: number, data: any) => {
 
 export const patchDataOrganization = async (id: number, data: any) => {
   try {
+    const organization = await prisma.organization.findUnique({
+      where: { id },
+    });
+
+    if (!organization) {
+      throw new Error("Organización no encontrada para actualizar");
+    }
+
     const updatedData = createPrismaUpdateObject(data);
 
     if (!updatedData) {
@@ -310,10 +305,11 @@ function createPrismaUpdateObject(data: any) {
 
 export const deleteOrganizationData = async (id: number) => {
   try {
-    await prisma.$transaction(async (prisma) => {
-      const deletedOrganization = await deletedAndResignIds(id);
-      return deletedOrganization;
+    const deletedOrganization = await prisma.organization.delete({
+      where: { id },
     });
+
+    return deletedOrganization;
   } catch (error: any) {
     console.error("Error al eliminar la organización", error);
     throw new Error("No se pudo eliminar la organización");

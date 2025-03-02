@@ -47,9 +47,9 @@ model NameOrganization {
 }
 
 model Ruc {
-  id      Int     @id @default(autoincrement())
-  rucText String
-  state   Boolean
+  id    Int     @id @default(autoincrement())
+  text   String
+  state Boolean
 
   organizaion Organization?
 }

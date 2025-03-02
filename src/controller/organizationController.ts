@@ -3,10 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import * as service from "../services/organization";
 import { IdSchema, OrganizationSchema } from "../types/organizationTypes";
 import { errorHandlerServer } from "../middleware/errorHandler";
-import { text } from "stream/consumers";
 
 const prisma = new PrismaClient();
-
 
 
 // Crear nueva organización
@@ -24,7 +22,12 @@ export const createOrganization = async (
     res.status(201).json({
       status: 201,
       message: "Organización creada correctamente",
-      response: newOrganization,
+      response: {   
+        "message": "La organización ha sido creada correctamente",
+        "data": {
+          "id": newOrganization.id
+        }
+      },
     });
   } catch (error) {
     errorHandlerServer(error, res, next);
@@ -40,9 +43,12 @@ export const getAllOrganizations = async (
 ) => {
   try {
     const organizations = await service.fetchAllOrganizations();
+    const organizationId = organizations.map((organization) => organization.id);
+
     res.status(200).json({
       status: 200,
       message: "Todas las Organizaciones obtenidas correctamente",
+      organizationsRegistered: organizationId,
       dataOnlyOrganizations: organizations,
     });
   } catch (error) {
@@ -74,12 +80,7 @@ export const getOrganizationById = async (
       where: { id: Number(id) },
       select: {
         nameOrganization: selectFields,
-        ruc: {
-          select: {
-            rucText: true,
-            state: true
-          }
-        },
+        ruc: selectFields,
         phone: selectFields,
         email: selectFields,
         purpose: selectFields,
@@ -135,15 +136,21 @@ export const updatePatchOrganization = async (
   try {
     const { id } = req.params;
     const idOrganization = Number(id);
-
+    
     // Validación parcial con Zod
     const parsedData = OrganizationSchema.partial().parse(req.body);
-
+    
     const onUpdateOrganization = await service.patchDataOrganization(idOrganization, parsedData);
 
     return res.status(200).json({
       message: "La organización ha sido actualizada correctamente",
-      response: onUpdateOrganization,
+      response: {
+        "status": 200,
+        "message": "La organización ha sido actualizada correctamente",
+        "data": {
+          "id updated": onUpdateOrganization.id
+        }
+      },
     });
 
   } catch (error) {
@@ -169,7 +176,13 @@ export const updatePutOrganization = async (
     
     res.status(200).json({
       message: "La organización ha sido actualizada correctamente",
-      response: onUpdateOrganization,
+      response: {
+        "status": 200,
+        "message": "La organización ha sido actualizada correctamente",
+        "data": {
+          "id updated": onUpdateOrganization.id
+        }
+      }
     });
   } catch (error) {
     errorHandlerServer(error, res, next);
@@ -187,10 +200,14 @@ export const deleteOrganization = async (
     const { id } = IdSchema.parse(req.params); // Validación del ID
 
     const onDeleteOrganization = await service.deleteOrganizationData(Number(id));
-    return res.status(200).json({
-      status: 200,
+
+    res.status(204).json({
+      status: 204,
       message: `La organización con el id ${id} sido eliminada correctamente`,
-      response: onDeleteOrganization,
+      response: {
+        "message": `La organización con el id ${id} ha sido eliminada correctamente`,
+        "deletedOrganization": onDeleteOrganization
+      },
     });
   } catch (error) {
     errorHandlerServer(error, res, next);

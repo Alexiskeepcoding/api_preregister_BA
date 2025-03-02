@@ -6,7 +6,7 @@ export const OrganizationSchema = z.object({
         state: z.boolean(),
     }),
     ruc: z.object({
-        rucText: z.string().min(10, "El RUC debe tener 13 dígitos"),
+        text: z.string().min(10, "El RUC debe tener 13 dígitos"),
         state: z.boolean(),
     }),
     phone: z.object({

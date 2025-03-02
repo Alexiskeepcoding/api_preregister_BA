@@ -50,12 +50,7 @@ const createOrganization = (data) => __awaiter(void 0, void 0, void 0, function*
         const newOrganization = yield prismaClient_1.default.organization.create({
             data: {
                 nameOrganization: createNestedField(nameOrganization),
-                ruc: {
-                    create: {
-                        rucText: ruc.rucText,
-                        state: ruc.state,
-                    },
-                },
+                ruc: createNestedField(ruc),
                 phone: createNestedField(phone),
                 email: createNestedField(email),
                 purpose: createNestedField(purpose),
@@ -122,12 +117,7 @@ const putDataOrganization = (id, data) => __awaiter(void 0, void 0, void 0, func
             },
             data: {
                 nameOrganization: updateNestedField(nameOrganization),
-                ruc: {
-                    update: {
-                        rucText: ruc.rucText,
-                        state: ruc.state,
-                    },
-                },
+                ruc: updateNestedField(ruc),
                 phone: updateNestedField(phone),
                 email: updateNestedField(email),
                 purpose: updateNestedField(purpose),

@@ -1,6 +1,7 @@
-import express, { Request, Response } from "express";
+import express, { Request, response, Response } from "express";
 import { getSupabase, supabaseMiddleWare } from "../middleware/supabase";
 import multer from "multer";
+import { v4 as uuidv4 } from "uuid";
 
 const app = express();
 const upload = multer({ dest: "uploads/" });
@@ -16,7 +17,6 @@ app.get("/getBeneficiaries/:filename", async (req: Request, res: Response) => {
       .download(`beneficiaries/${filename}`);
 
     if (error) {
-      console.error("Error al obtener el archivo:", error);
       throw error;
     }
 
@@ -41,8 +41,7 @@ app.get("/getBeneficiaries/:filename", async (req: Request, res: Response) => {
     }
     res.status(200).send(buffer);
   } catch (error) {
-    console.error("Error al obtener el archivo:", error);
-    res.status(500).send("Error al obtener el archivo.");
+    res.status(500).json({ error: "No existe el archivo solicitado" });
   }
 });
 
@@ -55,7 +54,6 @@ app.get("/getCertifications/:filename", async (req: Request, res: Response) => {
       .download(`certifications/${filename}`);
 
     if (error) {
-      console.error("Error al obtener el archivo:", error);
       throw error;
     }
 
@@ -80,8 +78,7 @@ app.get("/getCertifications/:filename", async (req: Request, res: Response) => {
     }
     res.status(200).send(buffer);
   } catch (error) {
-    console.error("Error al obtener el archivo:", error);
-    res.status(500).send("Error al obtener el archivo.");
+    res.status(500).json({ error: "No existe el archivo solicitado" });
   }
 });
 
@@ -97,6 +94,10 @@ app.post(
       const supabase = getSupabase(req);
       const { path, originalname } = req.file;
 
+      // Generate a UUID for the file
+      const fileExtension = originalname.split(".").pop();
+      const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+
       // Lee el archivo desde el sistema de archivos
       const fs = require("fs");
       const fileBuffer = fs.readFileSync(path);
@@ -105,15 +106,24 @@ app.post(
 
       const { data, error } = await supabase.storage
         .from(process.env.BUCKET_NAME ?? "")
-        .upload(`beneficiaries/${originalname}`, fileBuffer);
+        .upload(`beneficiaries/${originalname}`, fileBuffer, {
+          upsert: false,
+        });
 
       if (error) {
         throw error;
       }
 
-      res.status(200).send(`Archivo subido exitosamente`);
-    } catch (error) {
-      res.status(500).send("Error al subir el archivo.");
+      // Clean up the temporary file
+      fs.unlinkSync(path);
+
+      // Devuelve tanto el nombre original como el único para referencia
+      res.status(200).json({
+        message: "El archivo se subió exitosamente",
+        fileId: uniqueFileName,
+      });
+    } catch (error:any) {
+      res.status(500).json({ error: 'Error al subir el archivo.', message: error.message });
     }
   }
 );
@@ -130,6 +140,10 @@ app.post(
       const supabase = getSupabase(req);
       const { path, originalname } = req.file;
 
+      // Generate a UUID for the file
+      const fileExtension = originalname.split(".").pop();
+      const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+
       // Lee el archivo desde el sistema de archivos
       const fs = require("fs");
       const fileBuffer = fs.readFileSync(path);
@@ -137,15 +151,24 @@ app.post(
       // Sube el archivo a Supabase Storage
       const { data, error } = await supabase.storage
         .from(process.env.BUCKET_NAME ?? "")
-        .upload(`certifications/${originalname}`, fileBuffer);
+        .upload(`certifications/${originalname}`, fileBuffer, {
+          upsert: false,
+        });
 
       if (error) {
         throw error;
       }
 
-      res.status(200).send(`Archivo subido exitosamente`);
-    } catch (error) {
-      res.status(500).send("Error al subir el archivo.");
+      // Clean up the temporary file
+      fs.unlinkSync(path);
+
+      // Return a success response with minimal information
+      res.status(200).json({
+        message: "El archivo se subió exitosamente",
+        fileId: uniqueFileName,
+      });
+    } catch (error:any) {
+      res.status(500).json({ error: 'Error al subir el archivo.', message: error.message });
     }
   }
 );
