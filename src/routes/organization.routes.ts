@@ -385,8 +385,6 @@ router.use(storage);
  *     Organization:
  *       type: object
  *       properties:
- *         id:
- *           type: number
  *         nameOrganization:
  *           type: object
  *           properties:

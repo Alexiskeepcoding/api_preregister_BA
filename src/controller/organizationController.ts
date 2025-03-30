@@ -7,7 +7,7 @@ import { errorHandlerServer } from "../middleware/errorHandler";
 const prisma = new PrismaClient();
 
 
-// Crear nueva organización
+// Crear nueva organización (POST)
 export const createOrganization = async (
   req: Request,
   res: Response,

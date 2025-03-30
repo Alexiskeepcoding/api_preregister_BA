@@ -1,10 +1,10 @@
 import express, { Request, response, Response } from "express";
 import { getSupabase, supabaseMiddleWare } from "../middleware/supabase";
-import multer from "multer";
+import multer, { memoryStorage } from "multer";
 import { v4 as uuidv4 } from "uuid";
 
 const app = express();
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ storage: memoryStorage() });
 
 app.use(supabaseMiddleWare);
 
@@ -92,21 +92,16 @@ app.post(
       }
 
       const supabase = getSupabase(req);
-      const { path, originalname } = req.file;
+      const { originalname, buffer } = req.file;
 
       // Generate a UUID for the file
       const fileExtension = originalname.split(".").pop();
       const uniqueFileName = `${uuidv4()}.${fileExtension}`;
 
-      // Lee el archivo desde el sistema de archivos
-      const fs = require("fs");
-      const fileBuffer = fs.readFileSync(path);
-
       // Sube el archivo a Supabase Storage
-
       const { data, error } = await supabase.storage
         .from(process.env.BUCKET_NAME ?? "")
-        .upload(`beneficiaries/${originalname}`, fileBuffer, {
+        .upload(`beneficiaries/${originalname}`, buffer, {
           upsert: false,
         });
 
@@ -114,16 +109,15 @@ app.post(
         throw error;
       }
 
-      // Clean up the temporary file
-      fs.unlinkSync(path);
-
-      // Devuelve tanto el nombre original como el único para referencia
+      // Return success response with the generated file ID
       res.status(200).json({
         message: "El archivo se subió exitosamente",
         fileId: uniqueFileName,
       });
-    } catch (error:any) {
-      res.status(500).json({ error: 'Error al subir el archivo.', message: error.message });
+    } catch (error: any) {
+      res
+        .status(500)
+        .json({ error: "Error al subir el archivo.", message: error.message });
     }
   }
 );
@@ -138,20 +132,16 @@ app.post(
       }
 
       const supabase = getSupabase(req);
-      const { path, originalname } = req.file;
+      const { originalname, buffer } = req.file;
 
       // Generate a UUID for the file
       const fileExtension = originalname.split(".").pop();
       const uniqueFileName = `${uuidv4()}.${fileExtension}`;
 
-      // Lee el archivo desde el sistema de archivos
-      const fs = require("fs");
-      const fileBuffer = fs.readFileSync(path);
-
       // Sube el archivo a Supabase Storage
       const { data, error } = await supabase.storage
         .from(process.env.BUCKET_NAME ?? "")
-        .upload(`certifications/${originalname}`, fileBuffer, {
+        .upload(`certifications/${originalname}`, buffer, {
           upsert: false,
         });
 
@@ -159,16 +149,15 @@ app.post(
         throw error;
       }
 
-      // Clean up the temporary file
-      fs.unlinkSync(path);
-
-      // Return a success response with minimal information
+      // Return success response with the generated file ID
       res.status(200).json({
         message: "El archivo se subió exitosamente",
         fileId: uniqueFileName,
       });
-    } catch (error:any) {
-      res.status(500).json({ error: 'Error al subir el archivo.', message: error.message });
+    } catch (error: any) {
+      res
+        .status(500)
+        .json({ error: "Error al subir el archivo.", message: error.message });
     }
   }
 );
