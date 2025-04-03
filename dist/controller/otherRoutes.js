@@ -41,7 +41,7 @@ const getOrganizationInfo = (req, res, next) => __awaiter(void 0, void 0, void 0
         res.status(200).json({
             status: 200,
             message: "Informacion de las Organizaciones obtenidas exitosamente",
-            response: organizationsInfo
+            organizationInformation: organizationsInfo
         });
     }
     catch (error) {

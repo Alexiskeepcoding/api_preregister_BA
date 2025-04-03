@@ -9,7 +9,7 @@ exports.OrganizationSchema = zod_1.z.object({
         state: zod_1.z.boolean(),
     }),
     ruc: zod_1.z.object({
-        rucText: zod_1.z.string().min(10, "El RUC debe tener 13 dígitos"),
+        text: zod_1.z.string().min(10, "El RUC debe tener 13 dígitos"),
         state: zod_1.z.boolean(),
     }),
     phone: zod_1.z.object({

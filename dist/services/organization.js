@@ -14,15 +14,51 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteOrganizationData = exports.patchDataOrganization = exports.putDataOrganization = exports.createOrganization = exports.fetchAllOrganizations = void 0;
 const prismaClient_1 = __importDefault(require("../utils/prismaClient"));
-const updateOrderDatabase_1 = require("./updateOrderDatabase");
 const fetchAllOrganizations = () => __awaiter(void 0, void 0, void 0, function* () {
+    const selectFields = {
+        select: {
+            text: true,
+            state: true
+        }
+    };
     try {
         const organizations = yield prismaClient_1.default.organization.findMany({
-            include: {
-                address: true,
-                coordinates: true,
-                representative: true,
-            },
+            select: {
+                id: true,
+                nameOrganization: selectFields,
+                ruc: selectFields,
+                phone: selectFields,
+                email: selectFields,
+                purpose: selectFields,
+                dependentsBenefit: selectFields,
+                motive: selectFields,
+                numPreRegister: selectFields,
+                address: {
+                    select: {
+                        street: selectFields,
+                        city: selectFields,
+                        neighborhood: selectFields,
+                        province: selectFields,
+                        country: selectFields,
+                    }
+                },
+                coordinates: {
+                    select: {
+                        latitude: true,
+                        longitude: true
+                    }
+                },
+                representative: {
+                    select: {
+                        name: selectFields,
+                        numDoc: selectFields,
+                        role: selectFields,
+                        emailRepresentative: selectFields,
+                        phoneRepresentative: selectFields,
+                    }
+                },
+                stateRegistration: true
+            }
         });
         return organizations;
     }
@@ -50,7 +86,7 @@ const createOrganization = (data) => __awaiter(void 0, void 0, void 0, function*
         const newOrganization = yield prismaClient_1.default.organization.create({
             data: {
                 nameOrganization: createNestedField(nameOrganization),
-                ruc: createNestedField(ruc),
+                ruc: createAddressField(ruc),
                 phone: createNestedField(phone),
                 email: createNestedField(email),
                 purpose: createNestedField(purpose),
@@ -165,6 +201,12 @@ const putDataOrganization = (id, data) => __awaiter(void 0, void 0, void 0, func
 exports.putDataOrganization = putDataOrganization;
 const patchDataOrganization = (id, data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const organization = yield prismaClient_1.default.organization.findUnique({
+            where: { id },
+        });
+        if (!organization) {
+            throw new Error("Organización no encontrada para actualizar");
+        }
         const updatedData = createPrismaUpdateObject(data);
         if (!updatedData) {
             throw new Error("Datos no validos para actualizar");
@@ -222,10 +264,10 @@ function createPrismaUpdateObject(data) {
 }
 const deleteOrganizationData = (id) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield prismaClient_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
-            const deletedOrganization = yield (0, updateOrderDatabase_1.deletedAndResignIds)(id);
-            return deletedOrganization;
-        }));
+        const deletedOrganization = yield prismaClient_1.default.organization.delete({
+            where: { id },
+        });
+        return deletedOrganization;
     }
     catch (error) {
         console.error("Error al eliminar la organización", error);

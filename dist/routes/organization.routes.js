@@ -28,7 +28,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const Organization = __importStar(require("../controller/organizationController"));
-const OtherRouter = __importStar(require("../controller/otherRoutes"));
 const storage_1 = __importDefault(require("../storage/storage"));
 const router = express_1.default.Router();
 /**
@@ -48,205 +47,9 @@ const router = express_1.default.Router();
  *                 $ref: '#/components/schemas/Organization'
  */
 router.get("/all", Organization.getAllOrganizations);
-//From Tickets
 /**
  * @swagger
- * /api/organization/organizationinfo:
- *   get:
- *     summary: Recuperar información de la organización
- *     tags: [Organization]
- *     responses:
- *       200:
- *         description: Información de la organización
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                  $ref: '#/components/schemas/Organization'
- */
-router.get("/organizationinfo", OtherRouter.getOrganizationInfo);
-/**
- * @swagger
- * /api/organization/organizationinfo/{id}:
- *   get:
- *     summary: Recuperar información de la organización por ID
- *     tags: [Organization]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: El ID de la organización
- *     responses:
- *       200:
- *         description: Información de la organización
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/OrganizationInfo'
- */
-router.get("/organizationinfo/:id", OtherRouter.getOrgnizationInfoById);
-/**
- * @swagger
- * /api/organization/getCertifications/{filename}:
- *   get:
- *     summary: Obtiene un archivo de certificación
- *     tags: [Files]
- *     description: Descarga un archivo de certificación desde el almacenamiento basado en el nombre de archivo proporcionado.
- *     parameters:
- *       - in: path
- *         name: filename
- *         required: true
- *         schema:
- *           type: string
- *         description: El nombre del archivo a descargar.
- *     responses:
- *       200:
- *         description: Archivo descargado exitosamente.
- *         content:
- *           application/pdf:
- *             schema:
- *               type: string
- *               format: binary
- *           image/png:
- *             schema:
- *               type: string
- *               format: binary
- *       400:
- *         description: Tipo de archivo no soportado.
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- *               example: Tipo de archivo no soportado.
- *       500:
- *         description: Error al obtener el archivo.
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- *               example: Error al obtener el archivo.
- */
-/**
- * @swagger
- * /api/organization/getBeneficiaries/{filename}:
- *   get:
- *     summary: Obtiene un archivo de beneficiarios desde el almacenamiento.
- *     tags: [Files]
- *     description: Descarga un archivo de beneficiarios desde el almacenamiento basado en el nombre del archivo proporcionado.
- *     parameters:
- *       - in: path
- *         name: filename
- *         required: true
- *         schema:
- *           type: string
- *         description: El nombre del archivo a descargar.
- *     responses:
- *       '200':
- *         description: Archivo descargado exitosamente.
- *         content:
- *           application/pdf:
- *             schema:
- *               type: string
- *               format: binary
- *           image/png:
- *             schema:
- *               type: string
- *               format: binary
- *       '400':
- *         description: Tipo de archivo no soportado.
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- *               example: Tipo de archivo no soportado.
- *       '500':
- *         description: Error al obtener el archivo.
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- *               example: Error al obtener el archivo.
- */
-/**
- *
- * @swagger
- * /api/organization/uploadBeneficiaries:
- *   post:
- *     summary: Subir el archivo al storage Bucket de la organización
- *     tags: [Files]
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               file:
- *                 type: beneficiariesFile
- *                 format: fileExample.pdf
- *                 description: Archivo a subir key(value)
- *     responses:
- *       200:
- *         description: Archivo subido exitosamente
- *         tags: [Files]
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: string
- *                   description: La respuesta al subir el archivo
- *                 error:
- *                   type: object
- *                   description: Error al subir el archivo
- *       400:
- *         description: Bad request
- *       500:
- *         description: Error al subir el archivo.
- */
-/**
- *
- * @swagger
- * /api/organization/uploadCertifications:
- *   post:
- *     summary: Subir el archivo al storage Bucket de la organización
- *     tags: [Files]
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               file:
- *                 type: certificationFile
- *                 format: fileExample.pdf
- *                 description: Archivo a subir key(value)
- *     responses:
- *       200:
- *         description: Archivo subido exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 data:
- *                   type: string
- *                   description: La respuesta al subir el archivo
- *                 error:
- *                   type: object
- *                   description: Error al subir el archivo
- *       400:
- *         description: Bad request
- *       500:
- *         description: Error al subir el archivo.
- */
-router.use(storage_1.default);
-/**
- * @swagger
- * /api/organization/{id}:
+ * /api/organization/:id:
  *   get:
  *     summary: Obtener organización por ID
  *     tags: [Organization]
@@ -263,20 +66,7 @@ router.use(storage_1.default);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 stateRegistration:
- *                   type: string
- *                 address:
- *                   type: object
- *                   properties:
- *                     city:
- *                       type: string
- *                 representative:
- *                   type: object
- *                   properties:
- *                     name:
- *                       type: string
+ *              $ref: '#/components/schemas/Organization'
  *       404:
  *         description: Organización no encontrada
  *         content:
@@ -291,7 +81,7 @@ router.use(storage_1.default);
 router.get("/:id", Organization.getOrganizationById);
 /**
  * @swagger
- * /api/organization/create:
+ * /api/organization:
  *   post:
  *     summary: Crear una nueva organización
  *     tags: [Organization]
@@ -307,12 +97,25 @@ router.get("/:id", Organization.getOrganizationById);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Organization'
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 201
+ *                 message:
+ *                   type: string
+ *                   example: La organización ha sido creada correctamente
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: ID de la organización creada
  */
-router.post("/create", Organization.createOrganization);
+router.post("", Organization.createOrganization);
 /**
  * @swagger
- * /api/organization/{id}:
+ * /api/organization/:id:
  *   put:
  *     summary: Actualizar una organización por ID
  *     tags: [Organization]
@@ -335,12 +138,25 @@ router.post("/create", Organization.createOrganization);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Organization'
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: La organización ha sido actualizada correctamente
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id updated:
+ *                       type: integer
+ *                       description: ID de la organización actualizada
  */
 router.put("/:id", Organization.updatePutOrganization);
 /**
  * @swagger
- * /api/organization/update/{id}:
+ * /api/organization/:id:
  *   patch:
  *     summary: Actualizar parcialmente una organización por ID
  *     tags: [Organization]
@@ -371,10 +187,10 @@ router.put("/:id", Organization.updatePutOrganization);
  *                response:
  *                  type: object
  */
-router.patch("/update/:id", Organization.updatePatchOrganization);
+router.patch("/:id", Organization.updatePatchOrganization);
 /**
  * @swagger
- * /api/organization/delete/{id}:
+ * /api/organization/:id:
  *   delete:
  *     summary: Eliminar una organización por ID
  *     tags: [Organization]
@@ -387,9 +203,189 @@ router.patch("/update/:id", Organization.updatePatchOrganization);
  *         description: El ID de la organización
  *     responses:
  *       200:
- *         description: La organización con el id sido eliminada correctamente
+ *         description: La organización eliminada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: La organización con el id 1 ha sido eliminada correctamente
  */
-router.delete("/delete/:id", Organization.deleteOrganization);
+router.delete("/:id", Organization.deleteOrganization);
+/**
+ * @swagger
+ * /api/organization/getBeneficiaries/{filename}:
+ *   get:
+ *     summary: Obtiene un archivo de beneficiarios desde el almacenamiento.
+ *     tags: [Files]
+ *     description: Descarga un archivo de beneficiarios desde el almacenamiento basado en el nombre del archivo proporcionado.
+ *     parameters:
+ *       - in: path
+ *         name: filename
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: El nombre del archivo a descargar.
+ *     responses:
+ *       '200':
+ *         description: Archivo descargado exitosamente.
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *             examples:
+ *               file:
+ *                 summary: Ejemplo de archivo PDF
+ *                 value: <binary>
+ *       '400':
+ *         description: Tipo de archivo no soportado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Tipo de archivo no soportado.
+ *       '500':
+ *         description: Error al obtener el archivo.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Error al obtener el archivo.
+ */
+/**
+ * @swagger
+ * /api/organization/getCertifications/{filename}:
+ *   get:
+ *     summary: Obtiene un archivo de certificación desde el almacenamiento.
+ *     tags: [Files]
+ *     description: Descarga un archivo de certificación desde el almacenamiento basado en el nombre del archivo proporcionado.
+ *     parameters:
+ *       - in: path
+ *         name: filename
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: El nombre del archivo a descargar.
+ *     responses:
+ *       '200':
+ *         description: Archivo descargado exitosamente.
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *             examples:
+ *               file:
+ *                 summary: Ejemplo de archivo PDF
+ *                 value: <binary>
+ *       '400':
+ *         description: Tipo de archivo no soportado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Tipo de archivo no soportado.
+ *       '500':
+ *         description: Error al obtener el archivo.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Error al obtener el archivo.
+ */
+/**
+ *
+ * @swagger
+ * /api/organization/uploadBeneficiaries:
+ *   post:
+ *     summary: Subir el archivo al storage Bucket de la organización
+ *     tags: [Files]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               beneficiariesFile:
+ *                 type: string
+ *                 format: binary
+ *                 description: "Archivo PDF de beneficiarios"
+ *     responses:
+ *       200:
+ *         description: Archivo subido exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: string
+ *                   description: La respuesta al subir el archivo
+ *                 error:
+ *                   type: object
+ *                   description: Error al subir el archivo
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Error al subir el archivo.
+ */
+/**
+ *
+ * @swagger
+ * /api/organization/uploadCertifications:
+ *   post:
+ *     summary: Subir el archivo al storage Bucket de la organización
+ *     tags: [Files]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               certificationFile:
+ *                 type: string
+ *                 format: binary
+ *                 description: "Archivo PDF de certificaciones"
+ *     responses:
+ *       200:
+ *         description: Archivo subido exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: string
+ *                   description: La respuesta al subir el archivo
+ *                 error:
+ *                   type: object
+ *                   description: Error al subir el archivo
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Error al subir el archivo.
+ */
+router.use(storage_1.default);
 /**
  * @swagger
  * components:
@@ -397,23 +393,146 @@ router.delete("/delete/:id", Organization.deleteOrganization);
  *     Organization:
  *       type: object
  *       properties:
- *         id:
- *           type: string
  *         nameOrganization:
- *           type: string
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         ruc:
- *           type: string
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         phone:
- *           type: string
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         email:
- *           type:
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         purpose:
- *           type: string
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         dependentsBenefit:
- *           type: number
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         motive:
- *           type: string
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
  *         numPreRegister:
- *           type: number
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             state:
+ *               type: string
+ *         address:
+ *           type: object
+ *           properties:
+ *             street:
+ *               type: object
+ *               properties:
+ *                  text:
+ *                      type: string
+ *                  state:
+ *                      type: string
+ *             city:
+ *               type: object
+ *               properties:
+ *                  text:
+ *                      type: string
+ *                  state:
+ *                      type: string
+ *             neighborhood:
+ *               type: object
+ *               properties:
+ *                  text:
+ *                      type: string
+ *                  state:
+ *                      type: string
+ *             province:
+ *               type: object
+ *               properties:
+ *                  text:
+ *                      type: string
+ *                  state:
+ *                      type: string
+ *             country:
+ *               type: object
+ *               properties:
+ *                  text:
+ *                      type: string
+ *                  state:
+ *                      type: string
+ *             coordinates:
+ *               type: object
+ *               properties:
+ *                 latitude:
+ *                      type: string
+ *                 longitude:
+ *                      type: string
+ *         representative:
+ *           type: object
+ *           properties:
+ *              name:
+ *                type: object
+ *                properties:
+ *                  text:
+ *                    type: string
+ *                  state:
+ *                    type: string
+ *              numDoc:
+ *                type: object
+ *                properties:
+ *                  text:
+ *                    type: string
+ *                  state:
+ *                    type: string
+ *              role:
+ *                type: object
+ *                properties:
+ *                  text:
+ *                    type: string
+ *                  state:
+ *                    type: string
+ *              emailRepresentative:
+ *                type: object
+ *                properties:
+ *                  text:
+ *                    type: string
+ *                  state:
+ *                    type: string
+ *              phoneRepresentative:
+ *                type: object
+ *                properties:
+ *                  text:
+ *                    type: string
+ *                  state:
+ *                    type: string
+ *         stateRegistration:
+ *           type: string
  */
 exports.default = router;

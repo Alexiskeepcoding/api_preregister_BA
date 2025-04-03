@@ -1,2 +1,30 @@
 node_modules
 npm-debug.log
+
+# Archivos de entorno especificos de entorno local
+.env
+.env.local
+.env.*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Control de versiones git
+.git
+.gitignore
+
+# vscode
+.git
+.gitignore
+
+/dist
+/build
+/out
+
+tsconfig.tsbuildinfo
+tsconfig.tsbuildinfo.json
+
+Dockerfile
+.dockerignore

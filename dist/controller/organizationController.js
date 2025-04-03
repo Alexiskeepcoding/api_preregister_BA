@@ -38,7 +38,7 @@ const service = __importStar(require("../services/organization"));
 const organizationTypes_1 = require("../types/organizationTypes");
 const errorHandler_1 = require("../middleware/errorHandler");
 const prisma = new client_1.PrismaClient();
-// Crear nueva organización
+// Crear nueva organización (POST)
 const createOrganization = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Validación con Zod
@@ -47,7 +47,12 @@ const createOrganization = (req, res, next) => __awaiter(void 0, void 0, void 0,
         res.status(201).json({
             status: 201,
             message: "Organización creada correctamente",
-            response: newOrganization,
+            response: {
+                "message": "La organización ha sido creada correctamente",
+                "data": {
+                    "id": newOrganization.id
+                }
+            },
         });
     }
     catch (error) {
@@ -60,10 +65,12 @@ exports.createOrganization = createOrganization;
 const getAllOrganizations = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const organizations = yield service.fetchAllOrganizations();
+        const organizationId = organizations.map((organization) => organization.id);
         res.status(200).json({
             status: 200,
             message: "Todas las Organizaciones obtenidas correctamente",
-            response: organizations,
+            organizationsRegistered: organizationId,
+            dataOnlyOrganizations: organizations,
         });
     }
     catch (error) {
@@ -77,22 +84,50 @@ const getOrganizationById = (req, res, next) => __awaiter(void 0, void 0, void 0
     try {
         // Validación del ID con Zod
         const { id } = organizationTypes_1.IdSchema.parse(req.params);
+        const selectFields = {
+            select: {
+                text: true,
+                state: true
+            }
+        };
         // Verificar si la organización existe en la base de datos
         const organization = yield prisma.organization.findUnique({
             where: { id: Number(id) },
             select: {
-                stateRegistration: true,
+                nameOrganization: selectFields,
+                ruc: selectFields,
+                phone: selectFields,
+                email: selectFields,
+                purpose: selectFields,
+                dependentsBenefit: selectFields,
+                motive: selectFields,
+                numPreRegister: selectFields,
                 address: {
                     select: {
-                        city: true,
-                    },
+                        street: selectFields,
+                        city: selectFields,
+                        neighborhood: selectFields,
+                        province: selectFields,
+                        country: selectFields,
+                    }
+                },
+                coordinates: {
+                    select: {
+                        latitude: true,
+                        longitude: true
+                    }
                 },
                 representative: {
                     select: {
-                        name: true,
-                    },
+                        name: selectFields,
+                        numDoc: selectFields,
+                        role: selectFields,
+                        emailRepresentative: selectFields,
+                        phoneRepresentative: selectFields,
+                    }
                 },
-            },
+                stateRegistration: true
+            }
         });
         if (!organization) {
             return res.status(404).json({ message: "Organización no encontrada" });
@@ -115,7 +150,13 @@ const updatePatchOrganization = (req, res, next) => __awaiter(void 0, void 0, vo
         const onUpdateOrganization = yield service.patchDataOrganization(idOrganization, parsedData);
         return res.status(200).json({
             message: "La organización ha sido actualizada correctamente",
-            response: onUpdateOrganization,
+            response: {
+                "status": 200,
+                "message": "La organización ha sido actualizada correctamente",
+                "data": {
+                    "id updated": onUpdateOrganization.id
+                }
+            },
         });
     }
     catch (error) {
@@ -134,7 +175,13 @@ const updatePutOrganization = (req, res, next) => __awaiter(void 0, void 0, void
         const onUpdateOrganization = yield service.putDataOrganization(productId, parsedData);
         res.status(200).json({
             message: "La organización ha sido actualizada correctamente",
-            response: onUpdateOrganization,
+            response: {
+                "status": 200,
+                "message": "La organización ha sido actualizada correctamente",
+                "data": {
+                    "id updated": onUpdateOrganization.id
+                }
+            }
         });
     }
     catch (error) {
@@ -148,10 +195,13 @@ const deleteOrganization = (req, res, next) => __awaiter(void 0, void 0, void 0,
     try {
         const { id } = organizationTypes_1.IdSchema.parse(req.params); // Validación del ID
         const onDeleteOrganization = yield service.deleteOrganizationData(Number(id));
-        return res.status(200).json({
-            status: 200,
+        res.status(204).json({
+            status: 204,
             message: `La organización con el id ${id} sido eliminada correctamente`,
-            response: onDeleteOrganization,
+            response: {
+                "message": `La organización con el id ${id} ha sido eliminada correctamente`,
+                "deletedOrganization": onDeleteOrganization
+            },
         });
     }
     catch (error) {
