@@ -25,7 +25,7 @@ router.get("/all", Organization.getAllOrganizations);
 
 /**
  * @swagger
- * /api/organization/:id:
+ * /api/organization/{id}:
  *   get:
  *     summary: Obtener organización por ID
  *     tags: [Organization]
@@ -94,7 +94,7 @@ router.post("", Organization.createOrganization);
 
 /**
  * @swagger
- * /api/organization/:id:
+ * /api/organization/{id}:
  *   put:
  *     summary: Actualizar una organización por ID
  *     tags: [Organization]
@@ -137,7 +137,7 @@ router.put("/:id", Organization.updatePutOrganization);
 
 /**
  * @swagger
- * /api/organization/:id:
+ * /api/organization/{id}:
  *   patch:
  *     summary: Actualizar parcialmente una organización por ID
  *     tags: [Organization]
@@ -173,7 +173,7 @@ router.patch("/:id", Organization.updatePatchOrganization);
 
 /**
  * @swagger
- * /api/organization/:id:
+ * /api/organization/{id}:
  *   delete:
  *     summary: Eliminar una organización por ID
  *     tags: [Organization]

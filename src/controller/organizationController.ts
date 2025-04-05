@@ -201,12 +201,10 @@ export const deleteOrganization = async (
 
     const onDeleteOrganization = await service.deleteOrganizationData(Number(id));
 
-    res.status(204).json({
+    res.status(200).json({
       status: 204,
-      message: `La organización con el id ${id} sido eliminada correctamente`,
       response: {
-        "message": `La organización con el id ${id} ha sido eliminada correctamente`,
-        "deletedOrganization": onDeleteOrganization
+        "message": `La organización ha sido eliminada correctamente`,
       },
     });
   } catch (error) {
