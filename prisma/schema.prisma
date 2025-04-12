@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"] 
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -10,30 +10,32 @@ datasource db {
 }
 
 model Organization {
-  id                 Int               @id @default(autoincrement())
-  addressId          Int               @unique
-  coordinatesId      Int               @unique
-  emailId            Int               @unique
-  motiveId           Int               @unique
-  nameOrganizationId Int               @unique
-  numRegisterId      Int               @unique
-  phoneId            Int               @unique
-  purposeId          Int               @unique
-  representativeId   Int               @unique
-  rucId              Int               @unique
-  stateRegistration  StateRegistration
-  dependentBenefitId Int               @unique
-  address            Address           @relation(fields: [addressId], references: [id], onDelete: Cascade)
-  coordinates        Coordinates       @relation(fields: [coordinatesId], references: [id], onDelete: Cascade)
-  dependentsBenefit  DependentsBenefit @relation(fields: [dependentBenefitId], references: [id], onDelete: Cascade)
-  email              Email             @relation(fields: [emailId], references: [id], onDelete: Cascade)
-  motive             Motive            @relation(fields: [motiveId], references: [id], onDelete: Cascade)
-  nameOrganization   NameOrganization  @relation(fields: [nameOrganizationId], references: [id], onDelete: Cascade)
-  numPreRegister     NumPreRegister    @relation(fields: [numRegisterId], references: [id], onDelete: Cascade)
-  phone              Phone             @relation(fields: [phoneId], references: [id], onDelete: Cascade)
-  purpose            Purpose           @relation(fields: [purposeId], references: [id], onDelete: Cascade)
-  representative     Representative    @relation(fields: [representativeId], references: [id], onDelete: Cascade)
-  ruc                Ruc               @relation(fields: [rucId], references: [id], onDelete: Cascade)
+  id                 String             @id @unique @default(uuid())
+  addressId          Int                @unique
+  coordinatesId      Int                @unique
+  emailId            Int                @unique
+  motiveId           Int                @unique
+  nameOrganizationId Int                @unique
+  numRegisterId      Int                @unique
+  phoneId            Int                @unique
+  purposeId          Int                @unique
+  representativeId   Int                @unique
+  rucId              Int                @unique
+  stateRegistration  StateRegistration  @default(PENDING)
+  dependentBenefitId Int                @unique
+  fileBeneficiaries  FileBeneficiaries?
+  fileCertification  FileCertification?
+  address            Address            @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  coordinates        Coordinates        @relation(fields: [coordinatesId], references: [id], onDelete: Cascade)
+  dependentsBenefit  DependentsBenefit  @relation(fields: [dependentBenefitId], references: [id], onDelete: Cascade)
+  email              Email              @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  motive             Motive             @relation(fields: [motiveId], references: [id], onDelete: Cascade)
+  nameOrganization   NameOrganization   @relation(fields: [nameOrganizationId], references: [id], onDelete: Cascade)
+  numPreRegister     NumPreRegister     @relation(fields: [numRegisterId], references: [id], onDelete: Cascade)
+  phone              Phone              @relation(fields: [phoneId], references: [id], onDelete: Cascade)
+  purpose            Purpose            @relation(fields: [purposeId], references: [id], onDelete: Cascade)
+  representative     Representative     @relation(fields: [representativeId], references: [id], onDelete: Cascade)
+  ruc                Ruc                @relation(fields: [rucId], references: [id], onDelete: Cascade)
 }
 
 model NameOrganization {
@@ -213,10 +215,32 @@ model PhoneRepresentative {
   id             Int            @id @default(autoincrement())
   text           String
   state          Boolean
-  organizationId Int            @unique
   representative Representative @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId Int            @unique
 
   @@unique([id, organizationId])
+}
+
+model FileBeneficiaries {
+  id                  Int     @id @default(autoincrement())
+  state               Boolean @default(false)
+  fileBeneficiariesId String  @unique
+
+  organization        Organization @relation(fields: [beneficiariesFileId], references: [id], onDelete: Cascade)
+  beneficiariesFileId String       @unique
+
+  @@unique([id, beneficiariesFileId])
+}
+
+model FileCertification {
+  id                  Int          @id @default(autoincrement())
+  state               Boolean      @default(false)
+  filecertificationId String       @unique
+  
+  organization        Organization @relation(fields: [certificationFileId], references: [id], onDelete: Cascade)
+  certificationFileId String       @unique
+
+  @@unique([id, certificationFileId])
 }
 
 enum StateRegistration {

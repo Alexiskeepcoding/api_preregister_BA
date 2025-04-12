@@ -1,20 +1,83 @@
 import express, { Request, response, Response } from "express";
 import { getSupabase, supabaseMiddleWare } from "../middleware/supabase";
-import multer, { memoryStorage } from "multer";
 import { v4 as uuidv4 } from "uuid";
+import prisma from "../utils/prismaClient";
 
 const app = express();
-const upload = multer({ storage: memoryStorage() });
+
 
 app.use(supabaseMiddleWare);
 
-app.get("/getBeneficiaries/:filename", async (req: Request, res: Response) => {
+app.get("/getBeneficiaries/:organizationId", async (req: Request, res: Response) => {
   try {
-    const { filename } = req.params;
+    const { organizationId } = req.params;
+
     const supabase = getSupabase(req);
+
+    const organizationIdentifier = await prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: {
+        fileBeneficiaries: {
+          select: {
+            fileBeneficiariesId: true,
+          },
+        }
+      }
+    });
+
+    if (!organizationIdentifier) {
+      return res.status(404).json({ error: "No existe la organización" });
+    }
+
+    const file = organizationIdentifier?.fileBeneficiaries?.fileBeneficiariesId;
+
     const { data, error } = await supabase.storage
       .from(process.env.BUCKET_NAME ?? "")
-      .download(`beneficiaries/${filename}`);
+      .download(`beneficiaries/${file}.pdf`);
+
+    if (error) {
+      throw error;
+    }
+
+    const fileBuffer = await data.arrayBuffer();
+    const buffer = Buffer.from(fileBuffer); 
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=${file}`);
+
+    res.status(200).send(buffer);
+  } catch (error) {
+    res.status(500).json({ error: "No existe el archivo solicitado perteneciente a la organizacion" });
+  }
+});
+
+
+app.get("/getCertifications/:organizationId", async (req: Request, res: Response) => {
+  try {
+    const { organizationId } = req.params;
+
+    const supabase = getSupabase(req);
+
+    const organizationIdentifier = await prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: {
+        fileCertification: {
+          select: {
+            filecertificationId: true,
+          },
+        }
+      }
+    });
+
+    if (!organizationIdentifier) {
+      return res.status(404).json({ error: "No existe la organización" });
+    }
+
+    const file = organizationIdentifier?.fileCertification?.filecertificationId;
+
+    const { data, error } = await supabase.storage
+      .from(process.env.BUCKET_NAME ?? "")
+      .download(`certifications/${file}.pdf`);
 
     if (error) {
       throw error;
@@ -23,86 +86,62 @@ app.get("/getBeneficiaries/:filename", async (req: Request, res: Response) => {
     const fileBuffer = await data.arrayBuffer();
     const buffer = Buffer.from(fileBuffer);
 
-    // Determinar el tipo de archivo basado en la extensión
-    const fileExtension = filename.split(".").pop()?.toLowerCase();
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename=${file}`);
 
-    if (fileExtension === "pdf") {
-      // Configurar los encabezados para enviar el archivo como PDF
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
-    } else if (fileExtension === "png") {
-      // Configurar los encabezados para enviar el archivo como PNG
-      res.setHeader("Content-Type", "image/png");
-      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
-    } else {
-      // Si el tipo de archivo no es soportado, enviar un error
-      res.status(400).send("Tipo de archivo no soportado.");
-      return;
-    }
     res.status(200).send(buffer);
+
   } catch (error) {
     res.status(500).json({ error: "No existe el archivo solicitado" });
   }
 });
 
-app.get("/getCertifications/:filename", async (req: Request, res: Response) => {
-  try {
-    const { filename } = req.params;
-    const supabase = getSupabase(req);
-    const { data, error } = await supabase.storage
-      .from(process.env.BUCKET_NAME ?? "")
-      .download(`certifications/${filename}`);
-
-    if (error) {
-      throw error;
-    }
-
-    const fileBuffer = await data.arrayBuffer();
-    const buffer = Buffer.from(fileBuffer);
-
-    // Determinar el tipo de archivo basado en la extensión
-    const fileExtension = filename.split(".").pop()?.toLowerCase();
-
-    if (fileExtension === "pdf") {
-      // Configurar los encabezados para enviar el archivo como PDF
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
-    } else if (fileExtension === "png") {
-      // Configurar los encabezados para enviar el archivo como PNG
-      res.setHeader("Content-Type", "image/png");
-      res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
-    } else {
-      // Si el tipo de archivo no es soportado, enviar un error
-      res.status(400).send("Tipo de archivo no soportado.");
-      return;
-    }
-    res.status(200).send(buffer);
-  } catch (error) {
-    res.status(500).json({ error: "No existe el archivo solicitado" });
-  }
-});
 
 app.post(
-  "/uploadBeneficiaries",
-  upload.single("beneficiariesFile"),
+  "/uploadBeneficiaries/:organizationId",
+  express.raw({ type: ['application/pdf', 'application/octet-stream']}),
   async (req: Request, res: Response) => {
     try {
-      if (!req.file) {
-        return res.status(400).send("No file uploaded.");
+      const { organizationId } = req.params;
+      const supabase = getSupabase(req);
+
+      const uniqueFileName = `${uuidv4()}`;
+      
+      // Colocate with prisma el id del usuario que sube el archivo
+
+      const organizationResponse = await prisma.organization.findUnique({
+        where: { id: organizationId },
+      });
+
+      if(!organizationResponse) {
+        return res.status(404).json({ error: "No existe la organización" });
       }
 
-      const supabase = getSupabase(req);
-      const { originalname, buffer } = req.file;
+      await prisma.organization.update({
+        where: { id: organizationId },
+        data: {
+          fileBeneficiaries: {
+            create: {
+              state: true,
+              fileBeneficiariesId: uniqueFileName,
+            }
+          }
+        },
+      })
 
-      // Generate a UUID for the file
-      const fileExtension = originalname.split(".").pop();
-      const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+      const contentType = req.headers['content-type'] ?? 'application/octet-stream';
 
-      // Sube el archivo a Supabase Storage
-      const { data, error } = await supabase.storage
+      let fileExtension = 'bin';
+      if (contentType.includes('pdf')) fileExtension = 'pdf';
+      
+      const fileName = `${uniqueFileName}.${fileExtension}`;
+
+      // upload the binary data to Supabase Storage
+      const { error } = await supabase.storage
         .from(process.env.BUCKET_NAME ?? "")
-        .upload(`beneficiaries/${originalname}`, buffer, {
-          upsert: false,
+        .upload(`beneficiaries/${fileName}`, req.body, {
+          upsert: true,
+          contentType: 'application/pdf'
         });
 
       if (error) {
@@ -112,7 +151,7 @@ app.post(
       // Return success response with the generated file ID
       res.status(200).json({
         message: "El archivo se subió exitosamente",
-        fileId: uniqueFileName,
+        fileId: fileName
       });
     } catch (error: any) {
       res
@@ -124,25 +163,49 @@ app.post(
 
 app.post(
   "/uploadCertifications",
-  upload.single("certificationFile"),
+  express.raw({ type: ['application/pdf', 'application/octet-stream']}),
   async (req: Request, res: Response) => {
     try {
-      if (!req.file) {
-        return res.status(400).send("No file uploaded.");
+      const { organizationId } = req.params;
+      const supabase = getSupabase(req);
+
+      const uniqueFileName = `${uuidv4()}`;
+      
+      // Colocate with prisma el id del usuario que sube el archivo
+
+      const organizationResponse = await prisma.organization.findUnique({
+        where: { id: organizationId },
+      });
+
+      if(!organizationResponse) {
+        return res.status(404).json({ error: "No existe la organización" });
       }
 
-      const supabase = getSupabase(req);
-      const { originalname, buffer } = req.file;
+      await prisma.organization.update({
+        where: { id: organizationId },
+        data: {
+          fileCertification: {
+            create: {
+              state: true,
+              filecertificationId: uniqueFileName,
+            }
+          }
+        },
+      })
 
-      // Generate a UUID for the file
-      const fileExtension = originalname.split(".").pop();
-      const uniqueFileName = `${uuidv4()}.${fileExtension}`;
+      const contentType = req.headers['content-type'] ?? 'application/octet-stream';
 
-      // Sube el archivo a Supabase Storage
-      const { data, error } = await supabase.storage
+      let fileExtension = 'bin';
+      if (contentType.includes('pdf')) fileExtension = 'pdf';
+      
+      const fileName = `${uniqueFileName}.${fileExtension}`;
+
+      // upload the binary data to Supabase Storage
+      const { error } = await supabase.storage
         .from(process.env.BUCKET_NAME ?? "")
-        .upload(`certifications/${originalname}`, buffer, {
-          upsert: false,
+        .upload(`beneficiaries/${fileName}`, req.body, {
+          upsert: true,
+          contentType: 'application/pdf'
         });
 
       if (error) {
@@ -152,7 +215,7 @@ app.post(
       // Return success response with the generated file ID
       res.status(200).json({
         message: "El archivo se subió exitosamente",
-        fileId: uniqueFileName,
+        fileId: fileName
       });
     } catch (error: any) {
       res
