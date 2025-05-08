@@ -34,7 +34,7 @@ router.get("/all", Organization.getAllOrganizations);
  *         in: path
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *         description: ID de la organización
  *     responses:
  *       200:
